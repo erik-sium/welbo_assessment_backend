@@ -16,11 +16,11 @@ export const uploadImage = async (req, res, next) => {
             return res.status(400).json({ error: "No file uploaded" });
         }
 
-        const image = await saveOriginalImage(req.file);
+        await saveOriginalImage(req.file);
         logger.info(`Success`)
         res.status(201).send("Image uploaded!");
     } catch (error) {
-        logger.error(`Error: `, error)
+        // Logging here taken care by middleware, but can remove middleware and do it here and viceversa
         next(error);
     }
 };
@@ -30,6 +30,7 @@ export const cropImage = async (req, res, next) => {
     try {
         const { filename, x, y, width, height } = req.body;
         if (!filename || !x || !y || !width || !height) {
+            // TODO: potentially add more crop param. validation logic here
             return res.status(400).json({ error: "Invalid crop parameters" });
         }
 
@@ -43,13 +44,12 @@ export const cropImage = async (req, res, next) => {
 export const getAllImages = async (req, res, next) => {
     try {
         const images = await retrieveImagesData();
-
-        logger.info(images.length);
         
         const updatedImages = await Promise.all(images.map(async (image) => {
             const originalPath = path.join(IMAGES_UPLOAD_DIRECTORY, image.filename);
             const baseFilename = image.filename.slice(0, -9) // Remove "_orig.jpg"
 
+            // TODO: extract out reused suffixes in their own constants
             const croppedFileName = `${baseFilename}_1920x1080.jpg`;
             const croppedPath = path.join(IMAGES_UPLOAD_DIRECTORY, croppedFileName);
 
@@ -64,9 +64,6 @@ export const getAllImages = async (req, res, next) => {
                     .jpeg({ quality: IMAGES_DESIRED_IMAGE_QUALITY })
                     .toFile(thumbnailPath);
             }
-
-            logger.info(croppedPath)
-            logger.info(thumbnailPath)
 
             return {
                 filename: image.filename,
