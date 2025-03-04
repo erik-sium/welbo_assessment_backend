@@ -3,7 +3,7 @@ import fs from "fs";
 import logger from "../utils/logger.js";
 import path from "path";
 import sharp from "sharp";
-import { IMAGES_UPLOAD_DIRECTORY, IMAGES_DESIRED_THUMBNAIL_HEIGHT, IMAGES_DESIRED_THUMBNAIL_WIDTH, IMAGES_DESIRED_IMAGE_QUALITY } from "../constants.js"
+import { IMAGES_UPLOADED_WRITE_PATH, IMAGES_DESIRED_THUMBNAIL_HEIGHT, IMAGES_DESIRED_THUMBNAIL_WIDTH, IMAGES_DESIRED_IMAGE_QUALITY } from "../constants.js"
 
 
 export const uploadImage = async (req, res, next) => {
@@ -46,17 +46,17 @@ export const getAllImages = async (req, res, next) => {
         const images = await retrieveImagesData();
         
         const updatedImages = await Promise.all(images.map(async (image) => {
-            const originalPath = path.join(IMAGES_UPLOAD_DIRECTORY, image.filename);
+            const originalPath = path.join(IMAGES_UPLOADED_WRITE_PATH, image.filename);
             const baseFilename = image.filename.slice(0, -9) // Remove "_orig.jpg"
 
             // TODO: extract out reused suffixes in their own constants
             const croppedFileName = `${baseFilename}_1920x1080.jpg`;
-            const croppedPath = path.join(IMAGES_UPLOAD_DIRECTORY, croppedFileName);
+            const croppedPath = path.join(IMAGES_UPLOADED_WRITE_PATH, croppedFileName);
 
             const thumbnailFilename = `${baseFilename}_thumb.jpg`;
-            const thumbnailPath = path.join(IMAGES_UPLOAD_DIRECTORY, thumbnailFilename);
+            const thumbnailPath = path.join(IMAGES_UPLOADED_WRITE_PATH, thumbnailFilename);
 
-            let imageUrl = `${IMAGES_UPLOAD_DIRECTORY}/${thumbnailFilename}`;
+            let imageUrl = `${IMAGES_UPLOADED_WRITE_PATH}/${thumbnailFilename}`;
 
             if (!fs.existsSync(thumbnailPath)) {
                 await sharp(originalPath)

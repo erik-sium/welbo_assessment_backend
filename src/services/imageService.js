@@ -2,9 +2,9 @@ import path from "path";
 import fs from "fs";
 import sharp from "sharp";
 import ensureUploadsFolder from "../utils/fileUtils.js";
-import { IMAGES_UPLOAD_DIRECTORY } from "../constants.js"
+import { IMAGES_UPLOADED_WRITE_PATH } from "../constants.js"
 
-ensureUploadsFolder(IMAGES_UPLOAD_DIRECTORY);
+ensureUploadsFolder(IMAGES_UPLOADED_WRITE_PATH);
 
 export const saveOriginalImage = async (file) => {
     const originalExtension = path.extname(file.originalname);
@@ -15,7 +15,7 @@ export const saveOriginalImage = async (file) => {
     }
 
     const filename = path.basename(file.originalname, originalExtension) + "_orig" + targetExtension;
-    const filePath = path.join(IMAGES_UPLOAD_DIRECTORY, filename);
+    const filePath = path.join(IMAGES_UPLOADED_WRITE_PATH, filename);
 
     fs.renameSync(file.path, filePath);
 
@@ -24,10 +24,10 @@ export const saveOriginalImage = async (file) => {
 
 // TODO: feature to complete
 export const processImageCropping = async (filename, crop) => {
-    const origPath = path.join(IMAGES_UPLOAD_DIRECTORY, filename);
+    const origPath = path.join(IMAGES_UPLOADED_WRITE_PATH, filename);
     const baseName = filename.replace(/_orig\.\w+$/, "");
-    const resized1920 = path.join(IMAGES_UPLOAD_DIRECTORY, `${baseName}_1920x1080.jpg`);
-    const thumbnail = path.join(IMAGES_UPLOAD_DIRECTORY, `${baseName}_thumb.jpg`);
+    const resized1920 = path.join(IMAGES_UPLOADED_WRITE_PATH, `${baseName}_1920x1080.jpg`);
+    const thumbnail = path.join(IMAGES_UPLOADED_WRITE_PATH, `${baseName}_thumb.jpg`);
 
     await sharp(origPath)
         .extract({ left: crop.x, top: crop.y, width: crop.width, height: crop.height })
@@ -48,7 +48,7 @@ export const processImageCropping = async (filename, crop) => {
 };
 
 export const retrieveImagesData = async () => {
-    const files = fs.readdirSync(IMAGES_UPLOAD_DIRECTORY);
+    const files = fs.readdirSync(IMAGES_UPLOADED_WRITE_PATH);
 
     return files
         .filter((file) => file.endsWith("_orig.jpg") || file.endsWith("_orig.png"))

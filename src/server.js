@@ -3,7 +3,7 @@ import cors from "cors";
 import logger from "./utils/logger.js";
 import imageRoutes from "./routes/imageRoutes.js";
 import errorHandler from "./middlewares/errorHandler.js";
-import { IMAGES_ROUTES_ROOT, IMAGES_UPLOAD_DIRECTORY } from "./constants.js"
+import { IMAGES_ROUTES_URLS_ROOT, IMAGES_UPLOADED_WRITE_PATH, IMAGES_UPLOADED_READ_URL } from "./constants.js"
 
 const app = express();
 
@@ -11,8 +11,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(STATIC_UPLOADED_IMAGES_ROOT, express.static(IMAGES_UPLOAD_DIRECTORY));
-app.use(IMAGES_ROUTES_ROOT, imageRoutes);
+app.use(IMAGES_UPLOADED_READ_URL, express.static(IMAGES_UPLOADED_WRITE_PATH));
+app.use(IMAGES_ROUTES_URLS_ROOT, imageRoutes);
 
 app.use(errorHandler);
 
