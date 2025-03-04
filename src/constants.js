@@ -1,0 +1,4 @@
+export const IMAGES_UPLOAD_DIRECTORY = "static/uploadedImages";
+export const IMAGES_DESIRED_THUMBNAIL_WIDTH = 192;
+export const IMAGES_DESIRED_THUMBNAIL_HEIGHT = 108;
+export const IMAGES_DESIRED_IMAGE_QUALITY = 70;

@@ -1,10 +1,11 @@
 import express from "express";
-import { getImages, uploadImage, cropImage }  from "../controllers/imageController.js";
+import { getAllImages, uploadImage, cropImage }  from "../controllers/imageController.js";
+import imageUploadHandler from "../middlewares/imageUploadHandler.js"
 
 const router = express.Router();
 
-router.get("/", getImages);
-router.post("/upload", uploadImage);
+router.get("/", getAllImages);
+router.post("/upload", imageUploadHandler.single("file"), uploadImage);
 router.post("/crop", cropImage);
 
 export default router;
