@@ -1,0 +1,25 @@
+{
+  "name": "welbo_assessment_backend",
+  "version": "1.0.0",
+  "description": "Backend for Welbo robots",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erik-sium/welbo_assessment_backend.git"
+  },
+  "keywords": [
+    "robotics"
+  ],
+  "author": "Erik Minhas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/erik-sium/welbo_assessment_backend/issues"
+  },
+  "homepage": "https://github.com/erik-sium/welbo_assessment_backend#readme",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
