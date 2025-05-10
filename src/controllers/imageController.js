@@ -1,0 +1,80 @@
+import { retrieveImagesData, processImageCropping, saveOriginalImage } from "../services/imageService.js";
+import fs from "fs";
+import logger from "../utils/logger.js";
+import path from "path";
+import sharp from "sharp";
+import { IMAGES_UPLOADED_WRITE_PATH, IMAGES_DESIRED_THUMBNAIL_HEIGHT, IMAGES_DESIRED_THUMBNAIL_WIDTH, IMAGES_DESIRED_IMAGE_QUALITY } from "../constants.js"
+
+
+export const uploadImage = async (req, res, next) => {
+    try {
+        // Sample of my personal approach to logging in backend
+        logger.info(`uploadImage: beginning of request`)
+
+        if (!req.file) {
+            logger.info(`Error: No file uploaded`)
+            return res.status(400).json({ error: "No file uploaded" });
+        }
+
+        await saveOriginalImage(req.file);
+        logger.info(`Success`)
+        res.status(201).send("Image uploaded!");
+    } catch (error) {
+        // Logging here taken care by middleware, but can remove middleware and do it here and viceversa
+        next(error);
+    }
+};
+
+// TODO: feature to complete
+export const cropImage = async (req, res, next) => {
+    try {
+        const { filename, x, y, width, height } = req.body;
+        if (!filename || !x || !y || !width || !height) {
+            // TODO: potentially add more crop param. validation logic here
+            return res.status(400).json({ error: "Invalid crop parameters" });
+        }
+
+        const croppedImages = await processImageCropping(filename, { x, y, width, height });
+        res.status(200).json(croppedImages);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getAllImages = async (req, res, next) => {
+    try {
+        const images = await retrieveImagesData();
+        
+        const updatedImages = await Promise.all(images.map(async (image) => {
+            const originalPath = path.join(IMAGES_UPLOADED_WRITE_PATH, image.filename);
+            const baseFilename = image.filename.slice(0, -9) // Remove "_orig.jpg"
+
+            // TODO: extract out reused suffixes in their own constants
+            const croppedFileName = `${baseFilename}_1920x1080.jpg`;
+            const croppedPath = path.join(IMAGES_UPLOADED_WRITE_PATH, croppedFileName);
+
+            const thumbnailFilename = `${baseFilename}_thumb.jpg`;
+            const thumbnailPath = path.join(IMAGES_UPLOADED_WRITE_PATH, thumbnailFilename);
+
+            let imageUrl = `${IMAGES_UPLOADED_WRITE_PATH}/${thumbnailFilename}`;
+
+            if (!fs.existsSync(thumbnailPath)) {
+                await sharp(originalPath)
+                    .resize(IMAGES_DESIRED_THUMBNAIL_WIDTH, IMAGES_DESIRED_THUMBNAIL_HEIGHT)
+                    .jpeg({ quality: IMAGES_DESIRED_IMAGE_QUALITY })
+                    .toFile(thumbnailPath);
+            }
+
+            return {
+                filename: image.filename,
+                thumbnailUrl: imageUrl,
+                cropped: fs.existsSync(croppedPath)
+            };
+        }));
+
+
+        res.status(200).json(updatedImages);
+    } catch (error) {
+        next(error);
+    }
+};
